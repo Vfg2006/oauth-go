@@ -1,0 +1,15 @@
+version: '3.3'
+
+services:
+  oauth-api:
+    container_name: oauth-api
+    build: .
+    ports:
+      - "8000:8000"
+    networks:
+      - oauth-api-network
+    restart: unless-stopped
+
+networks:
+  oauth-api-network:
+    driver: bridge
