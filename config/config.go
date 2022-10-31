@@ -1,21 +1,22 @@
 package config
 
 import (
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Server Server `json:",squash"`
+	Server Server `mapstructure:",squash"`
 }
 
 type Server struct {
-	Host string `json:"server_host"`
-	Port string `json:"server_port"`
+	Host string `mapstructure:"server_host"`
+	Port string `mapstructure:"server_port"`
 }
 
 func SetDefaults() {
-	viper.SetDefault("SERVER_HOST", "localhost")
-	viper.SetDefault("SERVER_PORT", 8000)
+	viper.SetDefault("server_host", "localhost")
+	viper.SetDefault("server_port", 8000)
 }
 
 func NewConfigFromFile() (*Config, error) {
@@ -31,7 +32,12 @@ func NewConfigFromFile() (*Config, error) {
 		return nil, err
 	}
 
-	err = viper.Unmarshal(&config)
+	err = viper.Unmarshal(&config, viper.DecodeHook(
+		mapstructure.ComposeDecodeHookFunc(
+			mapstructure.StringToTimeDurationHookFunc(),
+			mapstructure.StringToSliceHookFunc(","),
+		),
+	))
 	if err != nil {
 		return nil, err
 	}
